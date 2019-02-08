@@ -72,6 +72,7 @@ int main() {
             if (SignIn (users, login, password) == true) {
                 while (true) {
 
+
                     system("cls");
                     cout << "----- KSIAZKA ADRESOWA -----" << endl;
                     cout << "1. Dodaj kontakt" << endl;
