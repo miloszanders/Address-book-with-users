@@ -14,11 +14,19 @@ struct User {
     string login, password;
 };
 
+struct Contact {
+
+    int contactId, userId;
+    string firstName, lastName, phoneNumber, emailAddress, address;
+};
+
+
 void readUsersFromExternalFile(vector<User> &users);
 int measureUserVectorLength(vector<User> &users);
 int checkMaxId(vector<User> &users, int sizeOfVector);
 bool SignUp(vector<User> &users, int occupiedMaxId, string login, string password);
-bool SignIn (vector<User> &users, string login, string password);
+int SignIn (vector<User> &users, string login, string password);
+void readContactsFromExternalFile(vector<User> &users, vector<Contact> &contacts, int currentId);
 
 int main() {
 
@@ -28,9 +36,11 @@ int main() {
     int occupiedMaxId = 0;
     char programOption;
     int newUserId = 0;
+    int currentId = -1;
     char test;
     string login, password;
     vector<User> users;
+    vector<Contact> contacts;
 
     readUsersFromExternalFile(users);
     sizeOfVector = measureUserVectorLength(users);
@@ -69,10 +79,11 @@ int main() {
             cout << "Wprowadz haslo: ";
             cin >> password;
 
-            if (SignIn (users, login, password) == true) {
+            currentId = SignIn(users, login, password);
+            if (currentId != -1)
+             {
+                 readContactsFromExternalFile(users, contacts, currentId);
                 while (true) {
-
-
                     system("cls");
                     cout << "----- KSIAZKA ADRESOWA -----" << endl;
                     cout << "1. Dodaj kontakt" << endl;
@@ -98,7 +109,6 @@ int main() {
                     }
                 }
             }
-
             else {
                 cout <<"Wprowadzone bledne parametry logowania! Logowanie nie powiodlo sie!" << endl;
                 Sleep(2000);
@@ -183,15 +193,73 @@ bool SignUp(vector<User> &users, int occupiedMaxId, string login, string passwor
 }
 
 
-bool SignIn (vector<User> &users, string login, string password) {
+int SignIn (vector<User> &users, string login, string password) {
     int sizeOfVector = measureUserVectorLength(users);
     for (int i = 0; i < sizeOfVector; i++) {
         if ((users[i].login == login) && (users[i].password == password)) {
             cout << "Autoryzacja poprawna!" << endl;
             Sleep(2000);
-            return true;
+            return users[i].userId;
             break;
         }
     }
-    return false;
+    return -1;
+}
+
+void readContactsFromExternalFile(vector<User> &users, vector<Contact> &contacts, int currentId)
+{
+    fstream externalFile;
+    string line;
+    vector <string> userComponent;
+    externalFile.open("AddressBook.txt", ios::in);
+
+    if (externalFile.good() == true) {
+        while (!externalFile.eof()) {
+            getline(externalFile, line);
+            stringstream splitContact(line);
+            string intermediate;
+
+            while(getline(splitContact, intermediate, '|')) {
+                userComponent.push_back(intermediate);
+            }
+        }
+    }
+
+        for(int i = 0; i < userComponent.size(); i++) {
+            string contactIdFraction = userComponent[i];
+            string contactUserIdFraction = userComponent[i+1];
+            stringstream composeContactId(contactIdFraction);
+            stringstream composeUserId(contactUserIdFraction);
+            int convertedContactId = 0;
+            int convertedUserId = 0;
+            composeContactId >> convertedContactId;
+            composeUserId >> convertedUserId;
+            cout << "converted user id: " << convertedUserId <<endl;
+            cout << "converted contact id: " << convertedContactId <<endl;
+            cout << "current user id: " << currentId <<endl;
+            system("pause");
+
+            if (convertedUserId == currentId)
+            {
+            contacts.push_back ({convertedContactId, convertedUserId, userComponent[i+2], userComponent[i+3], userComponent[i+4], userComponent[i+5], userComponent[i+6]} );
+            i+=6;
+            }
+            else {
+                i+=6;
+
+            }
+        }
+        for (int j = 0; j < contacts.size(); j++)
+        {
+            cout << contacts[j].contactId << endl;
+            cout << contacts[j].userId << endl;
+            cout << contacts[j].firstName << endl;
+            cout << contacts[j].lastName << endl;
+            cout << contacts[j].phoneNumber << endl;
+            cout << contacts[j].emailAddress << endl;
+             cout << contacts[j].address << endl;
+                        system("pause");
+        }
+   Sleep(2000);
+    externalFile.close();
 }
