@@ -41,7 +41,8 @@ void displayAllContacts(vector<Contact> contacts);
 void editContactById(vector<Contact> &contacts);
 void rewriteContactsIncludingChanges(vector<Contact> &contacts);
 void copyContactsFromTempToOrigin();
-
+void deleteContactById(vector<Contact> &contacts);
+void rewriteContactsIncludingChanges(vector<Contact> &contacts, int identifier);
 
 
 int main() {
@@ -84,15 +85,15 @@ int main() {
         switch (programOption) {
         case '1':
 
-        /*
-            for (int i=0; i <users.size(); i++) {
-                cout << users[i].userId << endl;
-                cout << users[i].login << endl;
-                cout << users[i].password << endl;
-                cout << endl;
-            }
+            /*
+                for (int i=0; i <users.size(); i++) {
+                    cout << users[i].userId << endl;
+                    cout << users[i].login << endl;
+                    cout << users[i].password << endl;
+                    cout << endl;
+                }
 
-            */
+                */
 
             cout << "Wprowadz login: ";
             cin >> login;
@@ -130,7 +131,7 @@ int main() {
                     case '1':
                         occupiedMaxContactId = addContact(contacts, currentUserId, occupiedMaxContactId);
                         break;
-                   case '2':
+                    case '2':
                         findContactByFirstName(contacts);
                         break;
                     case '3':
@@ -139,18 +140,12 @@ int main() {
                     case '4':
                         displayAllContacts(contacts);
                         break;
-
-                                   /*
                     case '5':
-                        deleteContactById(contacts);
-                        break;
-                          */
+                    deleteContactById(contacts);
+                    break;
                     case '6':
                         editContactById(contacts);
-
                         break;
-
-
                     case '9':
                         exit(0);
                         break;
@@ -291,14 +286,13 @@ int readContactsFromExternalFile(vector<User> &users, vector<Contact> &contacts,
         composeContactId >> convertedContactId;
         composeUserId >> convertedUserId;
 
-    /*
-        cout << "converted user id: " << convertedUserId <<endl;
-        cout << "converted contact id: " << convertedContactId <<endl;
-        cout << "current user id: " << currentUserId <<endl;
-        system("pause");
-*/
-        if (occupiedMaxContactId < convertedContactId)
-        {
+        /*
+            cout << "converted user id: " << convertedUserId <<endl;
+            cout << "converted contact id: " << convertedContactId <<endl;
+            cout << "current user id: " << currentUserId <<endl;
+            system("pause");
+        */
+        if (occupiedMaxContactId < convertedContactId) {
             occupiedMaxContactId = convertedContactId;
         }
 
@@ -313,8 +307,8 @@ int readContactsFromExternalFile(vector<User> &users, vector<Contact> &contacts,
 
     }
 
-        cout << "occupiedMaxContactId: " << occupiedMaxContactId <<endl;
-        system("pause");
+    cout << "occupiedMaxContactId: " << occupiedMaxContactId <<endl;
+    system("pause");
 
     /*
 
@@ -431,6 +425,7 @@ void findContactByLastName(vector<Contact> contacts) {
     while (i < sizeOfContacts ) {
         if (contacts[i].lastName == searchedLastName) {
             cout << contacts[i].contactId << endl;
+
             cout << contacts[i].firstName << endl;
             cout << contacts[i].lastName << endl;
             cout << contacts[i].phoneNumber << endl;
@@ -576,63 +571,133 @@ void editContactById(vector<Contact> &contacts) {
     }
 }
 
-void rewriteContactsIncludingChanges(vector<Contact> &contacts)
-{
+void rewriteContactsIncludingChanges(vector<Contact> &contacts) {
     int j = 0;
     string line;
     fstream originalExternalFile, temporaryExternalFile;
-        vector <string> contactComponent;
+    vector <string> contactComponent;
 
-         originalExternalFile.open("AddressBook.txt");
-                temporaryExternalFile.open("AddressBook_temp.txt", ofstream::out | ofstream::trunc);
+    originalExternalFile.open("AddressBook.txt");
+    temporaryExternalFile.open("AddressBook_temp.txt", ofstream::out | ofstream::trunc);
 
-                if (originalExternalFile.good() == true) {
-                while (!originalExternalFile.eof()) {
-                getline(originalExternalFile, line);
-                stringstream splitContact(line);
-                string intermediate;
+    if (originalExternalFile.good() == true) {
+        while (!originalExternalFile.eof()) {
+            getline(originalExternalFile, line);
+            stringstream splitContact(line);
+            string intermediate;
 
-                while(getline(splitContact, intermediate, '|')) {
+            while(getline(splitContact, intermediate, '|')) {
                 contactComponent.push_back(intermediate);
-                }
-                }
-                for(int i = 0; i < contactComponent.size(); i++) {
-                string fraction = contactComponent[i];
-                stringstream composeContact(fraction);
-                int convertedId = 0;
-                composeContact >> convertedId;
+            }
+        }
+        for(int i = 0; i < contactComponent.size(); i++) {
+            string fraction = contactComponent[i];
+            stringstream composeContact(fraction);
+            int convertedId = 0;
+            composeContact >> convertedId;
 
-                if (convertedId == contacts[j].contactId)
-                {
-                    temporaryExternalFile << contacts[j].contactId << "|" << contacts[j].userId << "|" << contacts[j].firstName << "|" << contacts[j].lastName << "|" << contacts[j].phoneNumber << "|" << contacts[j].emailAddress << "|" << contacts[j].address << "|" << endl;
-                    j++;
-                    i+=6;
-                }
-                else
-                {
-                    temporaryExternalFile << contactComponent[i] << "|" << contactComponent[i+1] << "|" << contactComponent[i+2] << "|" << contactComponent[i+3] << "|" << contactComponent[i+4] << "|" << contactComponent[i+5] << "|" << contactComponent[i+6] << "|" << endl;
-                    i+=6;
-                }
+            if (convertedId == contacts[j].contactId) {
+                temporaryExternalFile << contacts[j].contactId << "|" << contacts[j].userId << "|" << contacts[j].firstName << "|" << contacts[j].lastName << "|" << contacts[j].phoneNumber << "|" << contacts[j].emailAddress << "|" << contacts[j].address << "|" << endl;
+                j++;
+                i+=6;
+            } else {
+                temporaryExternalFile << contactComponent[i] << "|" << contactComponent[i+1] << "|" << contactComponent[i+2] << "|" << contactComponent[i+3] << "|" << contactComponent[i+4] << "|" << contactComponent[i+5] << "|" << contactComponent[i+6] << "|" << endl;
+                i+=6;
+            }
 
         }
     }
 }
 
-void copyContactsFromTempToOrigin()
-{
+void copyContactsFromTempToOrigin() {
+    ifstream inputFile("AddressBook_temp.txt", ios::in);
+    ofstream outputFile("AddressBook.txt", ios::out | ios::trunc);
+    outputFile << inputFile.rdbuf();
+}
 
-	ifstream inputFile;
-	inputFile.open("AddressBook_temp.txt");
-	ofstream outputFile;
-    outputFile.open("AddressBook.txt");
-    char ch;
 
-    while(!inputFile.eof())
-    {
-        inputFile.get(ch);
-        outputFile << ch;
+void deleteContactById(vector<Contact> &contacts) {
+    fstream temporaryExternalFile;
+    int identifier;
+    int deletedContactId;
+    cout << "Wprowadz id kontaktu, ktory nalezy usunac: ";
+    cin >> identifier;
+    char deleteConfirmation;
+
+    vector<Contact>::iterator searchProperId = contacts.begin();
+    while (searchProperId != contacts.end()) {
+        if (searchProperId-> contactId == identifier) {
+            cout << "Aby zatwierdzic operacje, wcisnij 't'" << endl;
+            cin >> deleteConfirmation;
+            if (deleteConfirmation == 't') {
+                searchProperId = contacts.erase(searchProperId);
+
+              //  temporaryExternalFile.open("AddressBook_temp.txt", ofstream::out | ofstream::trunc);
+
+
+                rewriteContactsIncludingChanges (contacts, identifier);
+                copyContactsFromTempToOrigin();
+
+            //    for(int i = 0; i < contacts.size(); i++) {
+            //        externalFile << contacts[i].id << "|" << contacts[i].firstName << "|" << contacts[i].lastName << "|" << contacts[i].phoneNumber << "|" <<contacts[i].emailAddress << "|" << contacts[i].address << "|" << endl;
+            //    }
+                cout << "Kontakt zostal usuniety!";
+                Sleep(1500);
+                break;
+            } else {
+                cout << "Operacja usuniecie niewlasciwie potwierdzona!" << endl;
+                Sleep(1500);
+                break;
+            }
+        } else {
+       searchProperId++;
+        }
     }
+}
 
-    inputFile.close();
 
+
+void rewriteContactsIncludingChanges(vector<Contact> &contacts, int identifier) {
+    int j = 0;
+    string line;
+    fstream originalExternalFile, temporaryExternalFile;
+    vector <string> contactComponent;
+
+    originalExternalFile.open("AddressBook.txt");
+    temporaryExternalFile.open("AddressBook_temp.txt", ofstream::out | ofstream::trunc);
+
+    if (originalExternalFile.good() == true) {
+        while (!originalExternalFile.eof()) {
+            getline(originalExternalFile, line);
+            stringstream splitContact(line);
+            string intermediate;
+
+            while(getline(splitContact, intermediate, '|')) {
+                contactComponent.push_back(intermediate);
+            }
+        }
+        for(int i = 0; i < contactComponent.size(); i++) {
+            string fraction = contactComponent[i];
+            stringstream composeContact(fraction);
+            int convertedId = 0;
+            composeContact >> convertedId;
+
+
+            if ((convertedId == contacts[j].contactId) && (convertedId != identifier)) {
+                temporaryExternalFile << contacts[j].contactId << "|" << contacts[j].userId << "|" << contacts[j].firstName << "|" << contacts[j].lastName << "|" << contacts[j].phoneNumber << "|" << contacts[j].emailAddress << "|" << contacts[j].address << "|" << endl;
+                j++;
+                i+=6;
+            }
+            else if (convertedId != identifier)
+            {
+                temporaryExternalFile << contactComponent[i] << "|" << contactComponent[i+1] << "|" << contactComponent[i+2] << "|" << contactComponent[i+3] << "|" << contactComponent[i+4] << "|" << contactComponent[i+5] << "|" << contactComponent[i+6] << "|" << endl;
+                i+=6;
+            }
+            else
+            {
+                 i+=6;
+            }
+
+        }
+    }
 }
